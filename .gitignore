@@ -1,3 +1,18 @@
+# Jupyter notebook
+.ipynb*
+*.gz*
+*.fq*
+*.fa*
+*.csv
+*.tsv
+*result*
+
+# work folders
+tmp/
+cluster/
+databases/
+filtered/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
