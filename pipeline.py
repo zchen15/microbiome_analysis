@@ -1,3 +1,5 @@
+
+
 import Bio
 import Bio.SeqIO
 import importlib
@@ -10,7 +12,7 @@ def read_fasta(fname):
     fname = file to open
     returns a list with [[filename, name, sequence]]
     '''
-    with open(fname, 'r') as f: 
+    with open(fname, 'r') as f:
         rec = list(Bio.SeqIO.parse(f, 'fasta'))
     df = [[fname, i.name, str(i.seq)] for i in rec]
     col = ['filename','name','sequence']
@@ -149,8 +151,30 @@ def get_best(df, col, metric='match', stat='idxmax'):
     idx = df.groupby(by=col).agg({metric:stat}).reset_index()
     return df.iloc[idx[metric].values].reset_index()
 
-def get_count_matrix(df):
-    df.groupby(by=col)
+def get_feature_matrix(df):
+    # get counts for each sample and feature
+    col = ['sample','database_id','count']
+    df['count'] = 1
+    x = df[col].groupby(['sample','database_id']).sum().reset_index()
+    # sort features by most frequently occuring samples
+    y = x[col].groupby(['database_id']).sum().reset_index()
+    y = y.sort_values(by='count')
+    db = y.iloc[::-1]['database_id'].values
+    jdict = {db[i]:i for i in range(len(db))}    
+    # populate the indices for sample
+    sample = x['sample'].drop_duplicates().values
+    # initialize the feature matrix
+    L = len(sample)
+    N = len(db)
+    mat = np.zeros([L,N])
+    for i in range(len(sample)):
+        x1 = x[x['sample']==sample[i]]
+        for j,k in x1[['database_id','count']].values:
+            j = jdict[j]
+            mat[i,j] = k
+        # normalize counts by total counts
+        mat[i,:] = mat[i,:]/np.sum(mat[i,:])
+    return mat
         
 def get_taxon():
     # flag taxons
@@ -166,6 +190,3 @@ def get_taxon():
     cmd = 'mmseqs taxonomy databases/queryDB databases/silvadb result tmp'
     subprocess.run(cmd.split(' '))
 
-#merge_reads()
-#cluster_reads()
-get_taxon()
