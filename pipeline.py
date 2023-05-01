@@ -174,8 +174,12 @@ def get_feature_matrix(df):
             mat[i,j] = k
         # normalize counts by total counts
         mat[i,:] = mat[i,:]/np.sum(mat[i,:])
+    mat = pd.DataFrame(mat, columns=db)
+    mat['sample'] = sample
+    col = ['sample']+[i for i in db]
+    mat = mat[col]
     return mat
-        
+
 def get_taxon():
     # flag taxons
     # download silva Db to align 
