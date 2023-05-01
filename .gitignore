@@ -1,10 +1,5 @@
 # Jupyter notebook
 .ipynb*
-*.gz*
-*.fq*
-*.fa*
-*.csv
-*.tsv
 *result*
 
 # work folders
